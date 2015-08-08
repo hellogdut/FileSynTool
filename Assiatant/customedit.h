@@ -7,6 +7,7 @@ class CustomEdit : public QTextEdit
 {
 public:
     CustomEdit(QWidget* parent = 0);
+
     ~CustomEdit();
 public:
     virtual void dragEnterEvent(QDragEnterEvent * e);

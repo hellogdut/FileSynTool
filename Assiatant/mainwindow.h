@@ -3,6 +3,9 @@
 
 #include <QMainWindow>
 #include <QVector>
+#include <vector>
+using namespace std;
+class regeditHelper;
 class QFileSystemWatcher;
 namespace Ui {
 class MainWindow;
@@ -25,16 +28,20 @@ public slots:
     void onDirectoryChanged(const QString & path);
     void onFileChanged(const QString & path);
     void timeOut();
+    // 注册表
+    void onGetRegInfo(vector<pair<QString,bool>>);
 private slots:
     void on_pushButton_2_clicked();
-
     void on_pushButton_clicked();
+
+    void on_pushButton_3_clicked();
 
 private:
     Ui::MainWindow *ui;
 private:
     bool click = false;
     QFileSystemWatcher* watcher;
+    regeditHelper* pReg;
     QStringList watchList;
     QString compareFolder;
     void setTimer();

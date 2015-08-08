@@ -14,9 +14,14 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    customedit.cpp
+    customedit.cpp \
+    regedithelper.cpp \
+    customlistwidget.cpp
 
 HEADERS  += mainwindow.h \
-    customedit.h
+    customedit.h \
+    regedithelper.h \
+    customlistwidget.h
+
 
 FORMS    += mainwindow.ui

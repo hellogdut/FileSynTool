@@ -9,6 +9,11 @@
 #include <QTimer>
 #include <QDesktopServices>
 #include <set>
+#include <QListWidget>
+#include <QListWidgetItem>
+#include <regedithelper.h>
+#include <QColor>
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -33,6 +38,13 @@ void MainWindow::init()
     connect(ui->compareEdit,SIGNAL(textChanged()),this,SLOT(onCompareEditChanged()));
     connect(ui->autoSyn,SIGNAL(stateChanged(int)),this,SLOT(onAutoSynChanged(int)));
     connect(ui->manualSyn,SIGNAL(clicked()),this,SLOT(onMannualSynClicked()));
+    // 注册表
+    pReg = new regeditHelper;
+    connect(pReg,SIGNAL(getetInfoFinished(vector<pair<QString,bool>>)),this,SLOT(onGetRegInfo(vector<pair<QString,bool>>)));
+    connect(ui->listWidget,SIGNAL(removeRegItem(QString)),pReg,SLOT(removeRegItem(QString)));
+    connect(ui->listWidget,SIGNAL(enableRegItem(QString)),pReg,SLOT(enableRegItem(QString)));
+    connect(ui->listWidget,SIGNAL(addRegItem(QString)),pReg,SLOT(addRegItem(QString)));
+    pReg->refreshListView();
 }
 
 void MainWindow::onWatchEditChanged()
@@ -296,4 +308,22 @@ void MainWindow::on_pushButton_2_clicked()
 void MainWindow::on_pushButton_clicked()
 {
     QDesktopServices::openUrl(QUrl("file:///" + compareFolder));
+}
+
+void MainWindow::onGetRegInfo(vector<pair<QString, bool>> vec)
+{
+    ui->listWidget->clear();
+    for(auto p : vec)
+    {
+        QListWidgetItem* item = new QListWidgetItem(p.first);
+        auto color = p.second ? QColor(0,255,0) : QColor(255,0,0);
+        //item->setTextColor(color);
+        item->setBackgroundColor(color);
+        ui->listWidget->addItem(item);
+    }
+}
+
+void MainWindow::on_pushButton_3_clicked()
+{
+    pReg->refreshListView();
 }
