@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>647</width>
-    <height>556</height>
+    <width>603</width>
+    <height>484</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -24,58 +24,95 @@
        <attribute name="title">
         <string>文件同步</string>
        </attribute>
-       <widget class="QWidget" name="layoutWidget">
+       <widget class="QGroupBox" name="groupBox">
         <property name="geometry">
          <rect>
           <x>20</x>
-          <y>10</y>
-          <width>581</width>
-          <height>471</height>
+          <y>290</y>
+          <width>96</width>
+          <height>104</height>
          </rect>
         </property>
-        <layout class="QGridLayout" name="gridLayout">
-         <item row="0" column="0">
-          <widget class="QLabel" name="label_2">
-           <property name="text">
-            <string>监视文件、文件夹</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="CustomEdit" name="watchEdit">
-           <property name="placeholderText">
-            <string>支持拖拽，快到碗里来</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="2">
-          <widget class="QPushButton" name="pushButton_2">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="text">
-            <string>查看</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
+        <property name="title">
+         <string>同步选项</string>
+        </property>
+        <widget class="QCheckBox" name="checkBox">
+         <property name="geometry">
+          <rect>
+           <x>13</x>
+           <y>30</y>
+           <width>77</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>文件增加</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+         <property name="tristate">
+          <bool>false</bool>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="checkBox_2">
+         <property name="geometry">
+          <rect>
+           <x>13</x>
+           <y>51</y>
+           <width>77</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>文件修改</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="checkBox_3">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="geometry">
+          <rect>
+           <x>13</x>
+           <y>72</y>
+           <width>77</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>文件删除</string>
+         </property>
+        </widget>
+       </widget>
+       <widget class="QWidget" name="">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>150</y>
+          <width>491</width>
+          <height>131</height>
+         </rect>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <item>
           <widget class="QLabel" name="label_1">
            <property name="text">
-            <string>目标目录</string>
+            <string>同步文件夹          </string>
            </property>
           </widget>
          </item>
-         <item row="1" column="1">
+         <item>
           <widget class="CustomEdit" name="compareEdit">
            <property name="placeholderText">
             <string>快到碗里来</string>
            </property>
           </widget>
          </item>
-         <item row="1" column="2">
+         <item>
           <widget class="QPushButton" name="pushButton">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -88,15 +125,34 @@
            </property>
           </widget>
          </item>
-         <item row="2" column="0">
-          <widget class="QCheckBox" name="autoSyn">
+        </layout>
+       </widget>
+       <widget class="QWidget" name="">
+        <property name="geometry">
+         <rect>
+          <x>21</x>
+          <y>18</y>
+          <width>491</width>
+          <height>121</height>
+         </rect>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <item>
+          <widget class="QLabel" name="label_2">
            <property name="text">
-            <string>自动同步</string>
+            <string>监视文件、文件夹</string>
            </property>
           </widget>
          </item>
-         <item row="2" column="1">
-          <widget class="QPushButton" name="manualSyn">
+         <item>
+          <widget class="CustomEdit" name="watchEdit">
+           <property name="placeholderText">
+            <string>支持拖拽，快到碗里来</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButton_2">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
              <horstretch>0</horstretch>
@@ -104,11 +160,43 @@
             </sizepolicy>
            </property>
            <property name="text">
-            <string>强制同步</string>
+            <string>查看</string>
            </property>
           </widget>
          </item>
         </layout>
+       </widget>
+       <widget class="QPushButton" name="manualSyn">
+        <property name="geometry">
+         <rect>
+          <x>135</x>
+          <y>340</y>
+          <width>94</width>
+          <height>32</height>
+         </rect>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>立即同步</string>
+        </property>
+       </widget>
+       <widget class="QCheckBox" name="autoSyn">
+        <property name="geometry">
+         <rect>
+          <x>140</x>
+          <y>314</y>
+          <width>77</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>自动同步</string>
+        </property>
        </widget>
       </widget>
       <widget class="QWidget" name="tab_8">

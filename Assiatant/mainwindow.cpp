@@ -36,8 +36,6 @@ void MainWindow::init()
     connect(watcher,SIGNAL(directoryChanged(QString)),this,SLOT(onDirectoryChanged(QString)));
     connect(ui->watchEdit,SIGNAL(textChanged()),this,SLOT(onWatchEditChanged()));
     connect(ui->compareEdit,SIGNAL(textChanged()),this,SLOT(onCompareEditChanged()));
-    connect(ui->autoSyn,SIGNAL(stateChanged(int)),this,SLOT(onAutoSynChanged(int)));
-    connect(ui->manualSyn,SIGNAL(clicked()),this,SLOT(onMannualSynClicked()));
     // 注册表
     pReg = new regeditHelper;
     connect(pReg,SIGNAL(getetInfoFinished(vector<pair<QString,bool>>)),this,SLOT(onGetRegInfo(vector<pair<QString,bool>>)));
@@ -92,29 +90,34 @@ void MainWindow::onCompareEditChanged()
          }
          else
          {
-             compareFolder = line;
+             compareList.push_back(line);
          }
     }
     if(valid)
         this->statusBar()->clearMessage();
     else
     {
-        compareFolder.clear();
+        compareList.clear();
     }
 }
 
-void MainWindow::onAutoSynChanged(int state)
+void MainWindow::enableInput(bool b)
 {
-    ui->watchEdit->setEnabled(!ui->watchEdit->isEnabled());
-    ui->compareEdit->setEnabled(!ui->compareEdit->isEnabled());
+    ui->watchEdit->setEnabled(b);
+    ui->compareEdit->setEnabled(b);
+    ui->groupBox->setEnabled(b);
 }
 
-void MainWindow::onMannualSynClicked()
+
+
+
+void MainWindow::on_manualSyn_clicked()
 {
+    // 点击手动同步
     qDebug() << "onMannualSynClicked";
+    click = true;
     for(auto path : watchList)
     {
-        click = true;
         QFileInfo check(path);
         if(check.isFile())
             onFileChanged(path);
@@ -122,6 +125,8 @@ void MainWindow::onMannualSynClicked()
             onDirectoryChanged(path);
     }
 }
+
+
 void MainWindow::onDirectoryChanged(const QString &path)
 {
     qDebug() << "DirectoryChanged :" + path;
@@ -148,22 +153,100 @@ void MainWindow::timeOut()
         startCopyFile(file);
     for(auto directory : directoryQueue)
         startCopyDirectory(directory);
-
+    if(click == true)
+    {
+        enableInput(true);
+        click = false;
+    }
 }
+
+void MainWindow::openPaths(QStringList &list)
+{
+    std::set<QString> pathList;
+
+    for(auto path : list)
+    {
+        QFileInfo file(path);
+        if(file.isDir())
+            pathList.insert(path);
+        else
+        {
+            pathList.insert(file.absolutePath());
+        }
+    }
+    for(auto path:pathList)
+        QDesktopServices::openUrl(QUrl("file:///" + path));
+}
+
+void MainWindow::synTwoFiles(QString fileA, QString fileB)
+{
+    QFileInfo aFile(fileA);
+    QFileInfo bFile(fileB);
+//    qDebug() << "fileA:" + fileA;
+//    qDebug() << "fileB:" + fileB;
+    // 同步增加或修改
+    if(aFile.exists())
+    {
+        // 同步修改
+        if(bFile.exists() && synModify && aFile.lastModified() != bFile.lastModified())
+        {
+            if(!QFile::remove(fileB))
+                qDebug() << "can't delete : " + fileB;
+            if(!QFile::copy(fileA, fileB))
+            {
+                qDebug() << "can't copy : " + fileA;
+            }
+            else
+            {
+                lastSynFileNotify("正在修改: " + fileB);
+                qDebug() << "copy : " + fileA;
+            }
+        }
+        else if(!bFile.exists() && synAdd)
+        {
+            // 同步增加
+            if(!QFile::copy(fileA, fileB))
+            {
+                qDebug() << "can't copy : " + fileA;
+            }
+            else
+            {
+                lastSynFileNotify("正在增加: " + fileB);
+                qDebug() << "copy : " + fileA;
+            }
+        }
+
+    }
+    // 同步删除
+    else
+    {
+        if(bFile.exists() && synDel)
+        {
+            if(!QFile::remove(fileB))
+                qDebug() << "can't delete : " + fileB;
+            else
+            {
+                lastSynFileNotify("正在删除: " + fileB);
+                qDebug() << "del :" + fileB;
+            }
+        }
+    }
+}
+
 
 void MainWindow::setTimer()
 {
     if(timer == NULL)
     {
-        ui->statusBar->showMessage("有文件改变，十秒后开始同步...");
+        ui->statusBar->showMessage("有文件改变，准备同步...");
         timer = new QTimer(this);
         connect(timer,SIGNAL(timeout()),this,SLOT(timeOut()));
-        timer->setInterval(10000);
+        timer->setInterval(2000);
         timer->start();
     }
     else
     {
-        ui->statusBar->showMessage("又有文件改变啦,等文件改变完一起同步...");
+        lastSynFileNotify("又有文件改变啦,等文件改变完一起同步...");
         timer->start();
     }
 }
@@ -182,22 +265,18 @@ void MainWindow::lastSynFileNotify(const QString &fileName)
 
 void MainWindow::startCopyDirectory(QString &path)
 {
-
-    if(!ui->autoSyn->checkState())
-    {
-        if(!click)
-            return;
-        click = false;
-    }
-
-    if(compareFolder.isEmpty())
+    //qDebug() << "startCopyDirectory() :" + path;
+    if(!autoSyn && !click)
         return;
+
     QDir dir(path);
-    //QString newName = compareFolder + dir.dirName();    // 获得文件名，构造路径
-    QString newName = compareFolder;    // 不带文件夹名
-    qDebug() << "newName:" + newName;
-    copyDirectoryFiles(path,newName,true);
-    lastSynTimeNotify();
+    for(auto newPath : compareList)
+    {
+        // 不带文件夹名
+        //qDebug() << "newPath" + newPath;
+        copyDirectoryFiles(path,newPath,true);
+        lastSynTimeNotify();
+    }
 }
 
 void MainWindow::startCopyFile(QString &path)
@@ -205,42 +284,35 @@ void MainWindow::startCopyFile(QString &path)
     // 流逝时间计算
     static QElapsedTimer et;
     et.start();
-
     lastSynFileNotify("正在同步: " + path);
-    if(!ui->autoSyn->checkState())
-    {
-        if(!click)
-            return;
-        click = false;
-    }
 
-    if(compareFolder.isEmpty())
+    if(!autoSyn && !click)
         return;
-    QDir dir(path);
-    QString newName = compareFolder + dir.dirName();    // 获得文件名，构造路径
-    qDebug() << "newPath: " + newName;
-    QFileInfo file(newName);
-    if(file.exists())
+
+    for(auto compareFolder : compareList)
     {
-        if(!QFile::remove(newName))
-            qDebug() << "can't delete : " + newName;
-        else
-            qDebug() << "delete : " + newName;
+        QDir dir(path);
+        QString newName = compareFolder + dir.dirName();    // 获得文件名，构造路径
+        qDebug() << "newPath: " + newName;
+        // 同步两个文件
+        synTwoFiles(path,newName);
+
+        if(et.elapsed() > 300)
+        {
+            QCoreApplication::processEvents();
+            et.restart();
+        }
+        lastSynTimeNotify();
     }
-    if(!QFile::copy(path, newName))
-        qDebug() << "can't copy : " + path;
 
 
-    if(et.elapsed() > 300)
-    {
-        QCoreApplication::processEvents();
-        et.restart();
-    }
-    lastSynTimeNotify();
 }
 
 bool MainWindow::copyDirectoryFiles(const QString &fromDir, const QString &toDir, bool coverFileIfExist)
 {
+//    qDebug() << "copyDirectoryFiles()";
+//    qDebug() << "from : " +  fromDir;
+//    qDebug() << "to : " + toDir;
     // 流逝时间计算
     static QElapsedTimer et;
     et.start();
@@ -266,15 +338,9 @@ bool MainWindow::copyDirectoryFiles(const QString &fromDir, const QString &toDir
             copyDirectoryFiles(fileInfo.filePath(),targetDir.filePath(fileInfo.fileName()),coverFileIfExist);
         }
         else
-        {   /**< 当允许覆盖操作时，将旧文件进行删除操作 */
-            if(coverFileIfExist && targetDir.exists(fileInfo.fileName()))
-            {
-                targetDir.remove(fileInfo.fileName());
-            }
-            /// 进行文件 copy
-            lastSynFileNotify("正在同步:" + fileInfo.filePath());
-            QFile::copy(fileInfo.filePath(),targetDir.filePath(fileInfo.fileName()));
-
+        {
+            // 同步文件
+            synTwoFiles(fileInfo.filePath(),targetDir.filePath(fileInfo.fileName()));
         }
         if(et.elapsed() > 300)
         {
@@ -286,29 +352,7 @@ bool MainWindow::copyDirectoryFiles(const QString &fromDir, const QString &toDir
     return true;
 }
 
-void MainWindow::on_pushButton_2_clicked()
-{
-    std::set<QString> pathList;
 
-    for(auto path : watchList)
-    {
-        QFileInfo file(path);
-        if(file.isDir())
-            pathList.insert(path);
-        else
-        {
-            pathList.insert(file.absolutePath());
-        }
-    }
-    for(auto path:pathList)
-        QDesktopServices::openUrl(QUrl("file:///" + path));
-
-}
-
-void MainWindow::on_pushButton_clicked()
-{
-    QDesktopServices::openUrl(QUrl("file:///" + compareFolder));
-}
 
 void MainWindow::onGetRegInfo(vector<pair<QString, bool>> vec)
 {
@@ -323,7 +367,51 @@ void MainWindow::onGetRegInfo(vector<pair<QString, bool>> vec)
     }
 }
 
+
+void MainWindow::on_pushButton_2_clicked()
+{
+    // 打开监视目录
+    openPaths(watchList);
+}
+
 void MainWindow::on_pushButton_3_clicked()
 {
     pReg->refreshListView();
+}
+
+void MainWindow::on_checkBox_stateChanged(int arg1)
+{
+    // 文件增加
+    synAdd = (arg1 == 0) ? false : true;
+}
+
+void MainWindow::on_checkBox_2_stateChanged(int arg1)
+{
+    // 文件修改
+    synModify = (arg1 == 0) ? false : true;
+}
+
+void MainWindow::on_checkBox_3_stateChanged(int arg1)
+{
+    // 文件删除
+    synDel = (arg1 == 0) ? false : true;
+}
+
+void MainWindow::on_pushButton_clicked()
+{
+    // 打开对比目录
+    openPaths(compareList);
+}
+
+void MainWindow::on_autoSyn_stateChanged(int arg1)
+{
+    // 选中自动同步
+    autoSyn = (arg1 == 0) ? false : true;
+    enableInput(!autoSyn);
+    // 停止监听
+    if(arg1 == 0)
+        watcher->removePaths(watchList);
+    else
+        onWatchEditChanged();
+
 }
