@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>603</width>
-    <height>484</height>
+    <width>621</width>
+    <height>518</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -27,8 +27,8 @@
        <widget class="QGroupBox" name="groupBox">
         <property name="geometry">
          <rect>
-          <x>20</x>
-          <y>290</y>
+          <x>23</x>
+          <y>340</y>
           <width>96</width>
           <height>104</height>
          </rect>
@@ -88,89 +88,11 @@
          </property>
         </widget>
        </widget>
-       <widget class="QWidget" name="">
-        <property name="geometry">
-         <rect>
-          <x>20</x>
-          <y>150</y>
-          <width>491</width>
-          <height>131</height>
-         </rect>
-        </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_3">
-         <item>
-          <widget class="QLabel" name="label_1">
-           <property name="text">
-            <string>同步文件夹          </string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="CustomEdit" name="compareEdit">
-           <property name="placeholderText">
-            <string>快到碗里来</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="pushButton">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="text">
-            <string>查看</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QWidget" name="">
-        <property name="geometry">
-         <rect>
-          <x>21</x>
-          <y>18</y>
-          <width>491</width>
-          <height>121</height>
-         </rect>
-        </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_2">
-         <item>
-          <widget class="QLabel" name="label_2">
-           <property name="text">
-            <string>监视文件、文件夹</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="CustomEdit" name="watchEdit">
-           <property name="placeholderText">
-            <string>支持拖拽，快到碗里来</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="pushButton_2">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="text">
-            <string>查看</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
        <widget class="QPushButton" name="manualSyn">
         <property name="geometry">
          <rect>
           <x>135</x>
-          <y>340</y>
+          <y>390</y>
           <width>94</width>
           <height>32</height>
          </rect>
@@ -189,13 +111,149 @@
         <property name="geometry">
          <rect>
           <x>140</x>
-          <y>314</y>
+          <y>364</y>
           <width>77</width>
           <height>20</height>
          </rect>
         </property>
         <property name="text">
          <string>自动同步</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_3">
+        <property name="geometry">
+         <rect>
+          <x>23</x>
+          <y>160</y>
+          <width>96</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>排除文件夹      </string>
+        </property>
+       </widget>
+       <widget class="CustomEdit" name="exceptEdit">
+        <property name="geometry">
+         <rect>
+          <x>125</x>
+          <y>141</y>
+          <width>346</width>
+          <height>70</height>
+         </rect>
+        </property>
+        <property name="html">
+         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'SimSun'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="placeholderText">
+         <string>快到碗里来</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="pushButton_4">
+        <property name="geometry">
+         <rect>
+          <x>490</x>
+          <y>160</y>
+          <width>75</width>
+          <height>23</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>查看</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_1">
+        <property name="geometry">
+         <rect>
+          <x>23</x>
+          <y>280</y>
+          <width>96</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>同步文件夹      </string>
+        </property>
+       </widget>
+       <widget class="CustomEdit" name="compareEdit">
+        <property name="geometry">
+         <rect>
+          <x>125</x>
+          <y>251</y>
+          <width>346</width>
+          <height>70</height>
+         </rect>
+        </property>
+        <property name="placeholderText">
+         <string>快到碗里来</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="pushButton">
+        <property name="geometry">
+         <rect>
+          <x>490</x>
+          <y>279</y>
+          <width>75</width>
+          <height>23</height>
+         </rect>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>查看</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_2">
+        <property name="geometry">
+         <rect>
+          <x>23</x>
+          <y>40</y>
+          <width>96</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>监视文件、文件夹</string>
+        </property>
+       </widget>
+       <widget class="CustomEdit" name="watchEdit">
+        <property name="geometry">
+         <rect>
+          <x>125</x>
+          <y>20</y>
+          <width>346</width>
+          <height>70</height>
+         </rect>
+        </property>
+        <property name="placeholderText">
+         <string>支持拖拽，快到碗里来</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="pushButton_2">
+        <property name="geometry">
+         <rect>
+          <x>490</x>
+          <y>40</y>
+          <width>75</width>
+          <height>23</height>
+         </rect>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>查看</string>
         </property>
        </widget>
       </widget>

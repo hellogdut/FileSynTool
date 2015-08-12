@@ -36,6 +36,7 @@ void MainWindow::init()
     connect(watcher,SIGNAL(directoryChanged(QString)),this,SLOT(onDirectoryChanged(QString)));
     connect(ui->watchEdit,SIGNAL(textChanged()),this,SLOT(onWatchEditChanged()));
     connect(ui->compareEdit,SIGNAL(textChanged()),this,SLOT(onCompareEditChanged()));
+    connect(ui->exceptEdit,SIGNAL(textChanged()),this,SLOT(onExceptEditChanged()));
     // 注册表
     pReg = new regeditHelper;
     connect(pReg,SIGNAL(getetInfoFinished(vector<pair<QString,bool>>)),this,SLOT(onGetRegInfo(vector<pair<QString,bool>>)));
@@ -47,7 +48,7 @@ void MainWindow::init()
 
 void MainWindow::onWatchEditChanged()
 {
-
+    watchList.clear();
     QTextEdit* watchEdit = ui->watchEdit;
     QStringList lines = watchEdit->toPlainText().split("\n");
     bool valid = true;
@@ -68,13 +69,13 @@ void MainWindow::onWatchEditChanged()
     if(valid)
     {
         this->statusBar()->clearMessage();
-        watcher->removePaths(watchList);
         watchList.swap(validList);
-        watcher->addPaths(watchList);
     }
+    updateBtn();
 }
 void MainWindow::onCompareEditChanged()
 {
+    compareList.clear();
     QStringList lines = ui->compareEdit->toPlainText().split("\n");
     bool valid = true;
     for(auto line:lines)
@@ -99,13 +100,51 @@ void MainWindow::onCompareEditChanged()
     {
         compareList.clear();
     }
+    updateBtn();
+}
+
+void MainWindow::onExceptEditChanged()
+{
+    exceptList.clear();
+    QTextEdit* exceptEdit = ui->exceptEdit;
+    QStringList lines = exceptEdit->toPlainText().split("\n");
+    bool valid = true;
+    QStringList validList;
+    QString str;
+    for(auto line:lines)
+    {
+         line = line.trimmed();
+         QFileInfo check(line);
+         if(check.isFile() || check.isDir())
+             validList.push_back(line);
+         else
+         {
+             valid = false;
+             this->statusBar()->showMessage("排除路径出错" + line);
+         }
+    }
+    if(valid)
+    {
+        this->statusBar()->clearMessage();
+        exceptList.swap(validList);
+    }
 }
 
 void MainWindow::enableInput(bool b)
 {
     ui->watchEdit->setEnabled(b);
+    ui->exceptEdit->setEnabled(b);
     ui->compareEdit->setEnabled(b);
     ui->groupBox->setEnabled(b);
+}
+
+void MainWindow::updateBtn()
+{
+    bool enable = true;
+    if(watchList.size() == 0 || compareList.size() == 0)
+        enable = false;
+    ui->autoSyn->setEnabled(enable);
+    ui->manualSyn->setEnabled(enable);
 }
 
 
@@ -116,6 +155,8 @@ void MainWindow::on_manualSyn_clicked()
     // 点击手动同步
     qDebug() << "onMannualSynClicked";
     click = true;
+    if(!watchList.empty())
+        enableInput(false);
     for(auto path : watchList)
     {
         QFileInfo check(path);
@@ -155,7 +196,8 @@ void MainWindow::timeOut()
         startCopyDirectory(directory);
     if(click == true)
     {
-        enableInput(true);
+        if(!autoSyn)
+            enableInput(true);
         click = false;
     }
 }
@@ -180,6 +222,8 @@ void MainWindow::openPaths(QStringList &list)
 
 void MainWindow::synTwoFiles(QString fileA, QString fileB)
 {
+    if(isPathExcept(fileA))
+        return;
     QFileInfo aFile(fileA);
     QFileInfo bFile(fileB);
 //    qDebug() << "fileA:" + fileA;
@@ -233,6 +277,18 @@ void MainWindow::synTwoFiles(QString fileA, QString fileB)
     }
 }
 
+void MainWindow::startWatch()
+{
+    watcher->addPaths(watchList);
+}
+
+
+
+void MainWindow::stopWatch()
+{
+    watcher->removePaths(watchList);
+}
+
 
 void MainWindow::setTimer()
 {
@@ -281,6 +337,8 @@ void MainWindow::startCopyDirectory(QString &path)
 
 void MainWindow::startCopyFile(QString &path)
 {
+    if(isPathExcept(path))
+        return;
     // 流逝时间计算
     static QElapsedTimer et;
     et.start();
@@ -291,8 +349,9 @@ void MainWindow::startCopyFile(QString &path)
 
     for(auto compareFolder : compareList)
     {
-        QDir dir(path);
-        QString newName = compareFolder + dir.dirName();    // 获得文件名，构造路径
+        QFileInfo file(path);
+        QDir target(compareFolder);
+        QString newName = target.filePath(file.fileName());    // 获得文件名，构造路径
         qDebug() << "newPath: " + newName;
         // 同步两个文件
         synTwoFiles(path,newName);
@@ -308,11 +367,15 @@ void MainWindow::startCopyFile(QString &path)
 
 }
 
+bool MainWindow::isPathExcept(const QString &path)
+{
+    return exceptList.contains(path);
+}
+
 bool MainWindow::copyDirectoryFiles(const QString &fromDir, const QString &toDir, bool coverFileIfExist)
 {
-//    qDebug() << "copyDirectoryFiles()";
-//    qDebug() << "from : " +  fromDir;
-//    qDebug() << "to : " + toDir;
+    if(isPathExcept(fromDir))
+        return true;
     // 流逝时间计算
     static QElapsedTimer et;
     et.start();
@@ -320,9 +383,9 @@ bool MainWindow::copyDirectoryFiles(const QString &fromDir, const QString &toDir
     QDir sourceDir(fromDir);
     QDir targetDir(toDir);
     if(!targetDir.exists()){    /** 如果目标目录不存在，则进行创建 */
-        if(!targetDir.mkdir(targetDir.absolutePath()))
+        if(!targetDir.mkdir(targetDir.path()))
         {
-            qDebug() << "mkdir " + targetDir.absolutePath() + " failed";
+            qDebug() << "mkdir " + targetDir.filePath(sourceDir.dirName()) + " failed";
         }
     }
 
@@ -335,6 +398,7 @@ bool MainWindow::copyDirectoryFiles(const QString &fromDir, const QString &toDir
 
         if(fileInfo.isDir())
         {   /**< 当为目录时，递归的进行 copy */
+            qDebug() << fileInfo.filePath() << "-> " << targetDir.filePath(fileInfo.fileName());
             copyDirectoryFiles(fileInfo.filePath(),targetDir.filePath(fileInfo.fileName()),coverFileIfExist);
         }
         else
@@ -410,8 +474,16 @@ void MainWindow::on_autoSyn_stateChanged(int arg1)
     enableInput(!autoSyn);
     // 停止监听
     if(arg1 == 0)
-        watcher->removePaths(watchList);
+    {
+        stopWatch();
+    }
     else
-        onWatchEditChanged();
+    {
+        startWatch();
+    }
+}
 
+void MainWindow::on_pushButton_4_clicked()
+{
+    openPaths(compareList);
 }

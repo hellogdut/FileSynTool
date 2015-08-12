@@ -74,7 +74,6 @@ void CustomListWidget::onAddBtnPress(bool)
 
 void CustomListWidget::onEnablePress(bool)
 {
-
     auto item = selectedItems()[0];
     if(item)
     {

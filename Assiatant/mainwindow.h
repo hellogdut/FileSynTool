@@ -31,14 +31,17 @@ public slots:
     void on_pushButton_3_clicked(); // 点击查看按钮
     void onWatchEditChanged();      // 监控目录 Edit 发生改变
     void onCompareEditChanged();    // 同步目录 Edit 发生改变
+    void onExceptEditChanged();
     void enableInput(bool b);
-
+    void updateBtn();
     // Logic
     void onDirectoryChanged(const QString & path);  // 文件夹发生改变
     void onFileChanged(const QString & path);       // 文件发生变化
     void timeOut();
     void openPaths(QStringList& list);              // 批量打开文件|文件夹，去重
     void synTwoFiles(QString fileA,QString fileB);
+    void startWatch();
+    void stopWatch();
 public slots:
 /* tab2 */
     void onGetRegInfo(vector<pair<QString,bool>>);
@@ -61,6 +64,8 @@ private slots:
 
 
 
+    void on_pushButton_4_clicked();
+
 private:
     Ui::MainWindow *ui;
 private:
@@ -69,11 +74,13 @@ private:
     regeditHelper* pReg;
     QStringList watchList;
     QStringList compareList;
+    QStringList exceptList;
     void setTimer();
     void lastSynTimeNotify();
     void lastSynFileNotify(const QString& fileName);
     void startCopyDirectory(QString& path);
     void startCopyFile(QString& path);
+    bool isPathExcept(const QString& path);
 
 private:
     bool copyDirectoryFiles(const QString &fromDir, const QString &toDir, bool coverFileIfExist);
